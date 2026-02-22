@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp, CarFront, Clock, Gauge, AlertTriangle, AlertCircle, Info, RefreshCw, Map } from "lucide-react";
+import { ArrowDown, ArrowUp, CarFront, Clock, Gauge, AlertTriangle, AlertCircle, Info, RefreshCw, Map, CalendarClock } from "lucide-react";
 import React from 'react';
 import { fetchExpressLanesStatus } from '@/lib/api';
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -23,6 +23,7 @@ export default async function Home() {
   let StatusIcon = AlertCircle;
   let statusTitle = "Status Unavailable";
   let statusSubtitle = "Unable to determine current lane configuration";
+  let mapUrl = "https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d11867.75508191995!2d-87.659929!3d41.924855!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus&layer=t";
 
   if (isInbound) {
     statusColor = 'from-emerald-100 to-emerald-200 dark:from-emerald-900 dark:to-emerald-950 text-emerald-950 dark:text-emerald-50 border-emerald-300 dark:border-emerald-800 shadow-emerald-200/50 dark:shadow-emerald-900/50';
@@ -30,12 +31,14 @@ export default async function Home() {
     StatusIcon = ArrowDown;
     statusTitle = "Inbound Open";
     statusSubtitle = "To Chicago (Southeast bound)";
+    mapUrl = "https://maps.google.com/maps?saddr=Montrose+Ave,+Chicago,+IL&daddr=Ohio+St,+Chicago,+IL&layer=t&output=embed";
   } else if (isOutbound) {
     statusColor = 'from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-950 text-blue-950 dark:text-blue-50 border-blue-300 dark:border-blue-800 shadow-blue-200/50 dark:shadow-blue-900/50';
     badgeColor = 'bg-blue-200 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200 border-blue-400 dark:border-blue-700/50';
     StatusIcon = ArrowUp;
     statusTitle = "Outbound Open";
     statusSubtitle = "From Chicago (Northwest bound)";
+    mapUrl = "https://maps.google.com/maps?saddr=Ohio+St,+Chicago,+IL&daddr=Montrose+Ave,+Chicago,+IL&layer=t&output=embed";
   } else if (isClosed) {
     statusColor = 'from-red-100 to-rose-200 dark:from-red-900 dark:to-rose-950 text-red-950 dark:text-red-50 border-red-300 dark:border-red-800 shadow-red-200/50 dark:shadow-red-900/50';
     badgeColor = 'bg-red-200 dark:bg-red-900/50 text-red-800 dark:text-red-200 border-red-400 dark:border-red-800/50';
@@ -137,9 +140,16 @@ export default async function Home() {
 
           {/* Map Column */}
           <div className="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-2 sm:p-4 shadow-sm flex flex-col overflow-hidden">
-            <div className="flex items-center gap-2 text-gray-500 dark:text-neutral-400 font-medium mb-3 px-2 pt-2">
-              <Map className="w-5 h-5 text-blue-500" />
-              <h3 className="text-sm uppercase tracking-wider">Live Traffic Flow</h3>
+            <div className="flex items-center justify-between text-gray-500 dark:text-neutral-400 font-medium mb-3 px-2 pt-2">
+              <div className="flex items-center gap-2">
+                <Map className="w-5 h-5 text-blue-500" />
+                <h3 className="text-sm uppercase tracking-wider">Live Traffic Flow</h3>
+              </div>
+              {isInbound || isOutbound ? (
+                <span className="text-xs font-semibold px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 rounded-md">
+                  Route Active
+                </span>
+              ) : null}
             </div>
             <div className="flex-grow w-full min-h-[250px] md:min-h-0 rounded-xl overflow-hidden border border-gray-100 dark:border-neutral-800 relative bg-gray-100 dark:bg-neutral-950">
               {/* Embed Google Map centered on Kennedy Expressway with Traffic Layer using embedded URL format */}
@@ -149,11 +159,90 @@ export default async function Home() {
                 loading="lazy"
                 allowFullScreen
                 referrerPolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d11867.75508191995!2d-87.659929!3d41.924855!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sus!4v1700000000000!5m2!1sen!2sus&layer=t"
+                src={mapUrl}
               ></iframe>
             </div>
           </div>
 
+        </div>
+
+        {/* Schedule Section */}
+        <div className="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-2xl p-6 sm:p-8 mb-8 shadow-sm">
+          <div className="flex items-center gap-3 text-gray-800 dark:text-neutral-200 font-semibold mb-6">
+            <CalendarClock className="w-6 h-6 text-purple-500" />
+            <h2 className="text-xl tracking-tight">Normal Operating Schedule</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            {/* Weekdays */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-neutral-500 border-b border-gray-100 dark:border-neutral-800 pb-2">
+                Monday — Friday
+              </h3>
+              <ul className="space-y-3 text-sm">
+                <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-neutral-800/50">
+                  <div className="flex items-center gap-2">
+                    <ArrowDown className="w-4 h-4 text-emerald-500" />
+                    <span className="font-semibold text-gray-700 dark:text-neutral-300">Inbound</span>
+                  </div>
+                  <span className="text-gray-500 dark:text-neutral-400 font-medium whitespace-nowrap">1:00 AM – 11:30 AM</span>
+                </li>
+                <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-neutral-800/50">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-gray-400" />
+                    <span className="font-semibold text-gray-700 dark:text-neutral-300">Closed</span>
+                  </div>
+                  <span className="text-gray-500 dark:text-neutral-400 font-medium whitespace-nowrap">11:30 AM – 1:30 PM</span>
+                </li>
+                <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-neutral-800/50">
+                  <div className="flex items-center gap-2">
+                    <ArrowUp className="w-4 h-4 text-blue-500" />
+                    <span className="font-semibold text-gray-700 dark:text-neutral-300">Outbound</span>
+                  </div>
+                  <span className="text-gray-500 dark:text-neutral-400 font-medium whitespace-nowrap">1:30 PM – 11:00 PM*</span>
+                </li>
+              </ul>
+              <p className="text-xs text-gray-400 dark:text-neutral-500 italic mt-2">
+                *Closes earlier on Fridays based on traffic
+              </p>
+            </div>
+
+            {/* Weekends */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-gray-500 dark:text-neutral-500 border-b border-gray-100 dark:border-neutral-800 pb-2">
+                Saturday — Sunday
+              </h3>
+              <ul className="space-y-3 text-sm">
+                <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-neutral-800/50">
+                  <div className="flex items-center gap-2">
+                    <ArrowDown className="w-4 h-4 text-emerald-500" />
+                    <span className="font-semibold text-gray-700 dark:text-neutral-300">Inbound</span>
+                  </div>
+                  <span className="text-gray-500 dark:text-neutral-400 font-medium whitespace-nowrap">1:00 AM – 1:00 PM</span>
+                </li>
+                <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-neutral-800/50">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-gray-400" />
+                    <span className="font-semibold text-gray-700 dark:text-neutral-300">Closed</span>
+                  </div>
+                  <span className="text-gray-500 dark:text-neutral-400 font-medium whitespace-nowrap">1:00 PM – 3:00 PM</span>
+                </li>
+                <li className="flex justify-between items-center p-3 rounded-lg bg-gray-50 dark:bg-neutral-800/50">
+                  <div className="flex items-center gap-2">
+                    <ArrowUp className="w-4 h-4 text-blue-500" />
+                    <span className="font-semibold text-gray-700 dark:text-neutral-300">Outbound</span>
+                  </div>
+                  <span className="text-gray-500 dark:text-neutral-400 font-medium whitespace-nowrap">3:00 PM – 11:00 PM</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-gray-100 dark:border-neutral-800/50">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-neutral-400 text-center mx-auto max-w-xl leading-relaxed">
+              Reversal times are approximate and dynamically adjusted by IDOT based on real-time traffic volume, incidents, or construction. Major holidays generally operate on a Sunday schedule.
+            </p>
+          </div>
         </div>
 
         {/* Footer info box */}
